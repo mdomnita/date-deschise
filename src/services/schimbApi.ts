@@ -21,7 +21,25 @@ export async function getCursZi(valuta: string, data: string): Promise<CursZi> {
 }
 
 export async function getIstoricCurs(valuta: string, from: string, to: string): Promise<CursIstoricPunct[]> {
-  const res = await fetch(`${BASE_URL}/schimb/istoric/${valuta}?from=${from}&to=${to}`)
+  let queryFrom = from;
+  let queryTo = to;
+  
+  if (valuta === 'BGN') {
+    const cutoff = '2025-12-31';
+    if (queryTo > cutoff) queryTo = cutoff;
+    if (queryFrom > cutoff) {
+      const dFrom = new Date(from);
+      const dTo = new Date(to);
+      const diffTime = Math.abs(dTo.getTime() - dFrom.getTime());
+      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+      
+      const newFrom = new Date('2025-12-31');
+      newFrom.setDate(newFrom.getDate() - diffDays);
+      queryFrom = `${newFrom.getFullYear()}-${String(newFrom.getMonth() + 1).padStart(2, '0')}-${String(newFrom.getDate()).padStart(2, '0')}`;
+    }
+  }
+
+  const res = await fetch(`${BASE_URL}/schimb/istoric/${valuta}?from=${queryFrom}&to=${queryTo}`)
   if (!res.ok) throw new Error(`HTTP ${res.status}`)
   return res.json()
 }

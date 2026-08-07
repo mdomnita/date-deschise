@@ -3,7 +3,7 @@ import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContai
 import { getValute, getValuteByData, getIstoricCurs } from '../services/schimbApi'
 import type { ValutaInfo, CursIstoricPunct } from '../types/schimb'
 
-const PRIMARY_CURRENCIES = ['EUR', 'USD', 'GBP', 'CHF', 'CAD', 'AUD', 'JPY', 'HUF', 'BGN', 'MDL']
+const PRIMARY_CURRENCIES = ['EUR', 'USD', 'GBP', 'CHF', 'CAD', 'AUD', 'JPY', 'HUF', 'PLN', 'MDL']
 
 const TVA_PRESETS: { label: string; value: number }[] = [
   { label: '0%', value: 0 },
@@ -14,7 +14,7 @@ const TVA_PRESETS: { label: string; value: number }[] = [
 const CURRENCY_NAMES: Record<string, string> = {
     "AED": "Dirham Emiratele Arabe Unite",
     "AUD": "Dolar australian",
-    "BGN": "Lev bulgăresc",
+    "BGN": "Lev bulgăresc (istoric / inactiv)",
     "BRL": "Real brazilian",
     "CAD": "Dolar canadian",
     "CHF": "Franc elvețian",
@@ -137,10 +137,21 @@ function ConvertorCard({
   }, [fromCurrency, onFromCurrencyChange])
 
   const allOptions = [{ valuta: 'RON', curs_unitar: 1, ultima_data: '' } as ValutaInfo, ...valute]
+  
+  if (!allOptions.some(v => v.valuta === 'BGN')) {
+    const eur = valute.find(v => v.valuta === 'EUR')
+    if (eur) {
+      allOptions.push({
+        valuta: 'BGN',
+        curs_unitar: eur.curs_unitar / 1.95583,
+        ultima_data: '2025-12-31'
+      })
+    }
+  }
 
   function getRate(currency: string): number {
     if (currency === 'RON') return 1
-    return valute.find(v => v.valuta === currency)?.curs_unitar ?? 0
+    return allOptions.find(v => v.valuta === currency)?.curs_unitar ?? 0
   }
 
   function swap() {
@@ -252,6 +263,15 @@ function ConvertorCard({
           </select>
         </div>
       </div>
+      
+      {(fromCurrency === 'BGN' || toCurrency === 'BGN') && (
+        <div className="mt-4 rounded-xl bg-amber-50 px-4 py-3 text-xs font-medium text-amber-800 flex items-start sm:items-center gap-3 border border-amber-100">
+          <svg className="mt-0.5 h-4 w-4 shrink-0 text-amber-600 sm:mt-0" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
+            <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd"/>
+          </svg>
+          <span>Monedă scoasă din circulație la 01.01.2026. Conversia folosește cursul fix (1 EUR = 1.95583 BGN).</span>
+        </div>
+      )}
 
       {/* TVA row */}
       <div id="convertor-tva" className="mt-3 flex flex-col gap-3 sm:flex-row sm:items-end">

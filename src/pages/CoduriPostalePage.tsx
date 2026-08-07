@@ -1,5 +1,8 @@
 import { useState } from 'react'
 import { cautaCoduriPostale, getCodPostal, rezolvaAdresa } from '../services/postalApi'
+import { numarRangeLabel } from '../lib/postalFormat'
+import { usePostalMapPins } from '../hooks/usePostalMapPins'
+import { PostalMap } from '../components/PostalMap'
 import type { AdresaCandidate, CautareCoduriPostaleParams, CodPostalEntry } from '../types/postal'
 
 type Mod = 'adresa' | 'componente' | 'cod'
@@ -33,15 +36,6 @@ function EmptyBox({ message }: { message: string }) {
       {message}
     </div>
   )
-}
-
-function numarRangeLabel(entry: CodPostalEntry): string | null {
-  if (entry.numar_min == null) return null
-  if (entry.numar_open_ended) return `${entry.numar_min}+`
-  if (entry.numar_max != null && entry.numar_max !== entry.numar_min) {
-    return `${entry.numar_min}–${entry.numar_max}`
-  }
-  return String(entry.numar_min)
 }
 
 function CodPostalCard({ entry }: { entry: CodPostalEntry }) {
@@ -195,6 +189,7 @@ function ComponenteSearchSection() {
   const [validationError, setValidationError] = useState<string | null>(null)
   const [results, setResults] = useState<CodPostalEntry[] | null>(null)
   const [total, setTotal] = useState(0)
+  const { pins, notFound, geocoding, truncatedCount } = usePostalMapPins(results)
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
@@ -336,6 +331,25 @@ function ComponenteSearchSection() {
               <CodPostalCard key={entry.id} entry={entry} />
             ))}
           </div>
+
+          <div id="coduri-postale-componente-map" className="mt-6">
+            {truncatedCount > 0 && (
+              <p className="mb-2 text-xs text-gray-400">
+                Se afișează pe hartă primele {results.length - truncatedCount} din {results.length} rezultate.
+              </p>
+            )}
+            <PostalMap pins={pins} loading={geocoding} />
+            {!geocoding && notFound.length > 0 && (
+              <div className="mt-3 space-y-1 text-xs text-gray-500">
+                {notFound.map(nf => (
+                  <p key={nf.id}>
+                    Adresă negăsită: {nf.codPostal}
+                    {nf.strada ? ` — ${nf.strada}` : ''}
+                  </p>
+                ))}
+              </div>
+            )}
+          </div>
         </div>
       )}
     </div>
@@ -350,6 +364,7 @@ function CodLookupSection() {
   const [error, setError] = useState<string | null>(null)
   const [notFound, setNotFound] = useState(false)
   const [results, setResults] = useState<CodPostalEntry[] | null>(null)
+  const { pins, notFound: mapNotFound, geocoding } = usePostalMapPins(results)
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
@@ -412,10 +427,26 @@ function CodLookupSection() {
       {notFound && <EmptyBox message="Nu există niciun cod poștal cu această valoare." />}
 
       {results && results.length > 0 && (
-        <div id="coduri-postale-cod-results" className="grid gap-4 sm:grid-cols-2">
-          {results.map(entry => (
-            <CodPostalCard key={entry.id} entry={entry} />
-          ))}
+        <div id="coduri-postale-cod-results">
+          <div className="grid gap-4 sm:grid-cols-2">
+            {results.map(entry => (
+              <CodPostalCard key={entry.id} entry={entry} />
+            ))}
+          </div>
+
+          <div id="coduri-postale-cod-map" className="mt-6">
+            <PostalMap pins={pins} loading={geocoding} />
+            {!geocoding && mapNotFound.length > 0 && (
+              <div className="mt-3 space-y-1 text-xs text-gray-500">
+                {mapNotFound.map(nf => (
+                  <p key={nf.id}>
+                    Adresă negăsită: {nf.codPostal}
+                    {nf.strada ? ` — ${nf.strada}` : ''}
+                  </p>
+                ))}
+              </div>
+            )}
+          </div>
         </div>
       )}
     </div>

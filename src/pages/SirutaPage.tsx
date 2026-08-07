@@ -43,17 +43,17 @@ export function SirutaPage() {
   }
 
   return (
-    <main className="mx-auto max-w-4xl px-4 py-12 sm:px-6">
-      <div className="mb-10 text-center">
-        <h1 className="mb-2 text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl">
+    <main id="siruta-page" className="mx-auto max-w-4xl px-4 py-12 sm:px-6">
+      <div id="siruta-header" className="mb-10 text-center">
+        <h1 id="siruta-title" className="mb-2 text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl">
           Coduri SIRUTA
         </h1>
-        <p className="text-gray-500">
+        <p id="siruta-subtitle" className="text-gray-500">
           Caută orice localitate sau explorează ierarhia administrativă după județ
         </p>
       </div>
 
-      <div className="mb-8 flex justify-center">
+      <div id="siruta-search-wrapper" className="mb-8 flex justify-center">
         <SirutaSearchBar
           value={query}
           onChange={setQuery}
@@ -64,8 +64,9 @@ export function SirutaPage() {
 
       {/* Favorites — only when not searching */}
       {!isSearchActive && favorites.length > 0 && (
-        <section className="mb-10">
+        <section id="siruta-favorites" className="mb-10">
           <button
+            id="siruta-favorites-toggle"
             onClick={() => setShowFavorites(v => !v)}
             className="mb-4 flex w-full items-center justify-between rounded-xl border border-amber-100 bg-amber-50 px-4 py-3 text-left transition hover:bg-amber-100"
           >
@@ -108,6 +109,7 @@ export function SirutaPage() {
 
       {/* Search results */}
       {isSearchActive && (
+        <div id="siruta-results">
         <SirutaResultsList
           results={results}
           total={total}
@@ -117,10 +119,11 @@ export function SirutaPage() {
           isFavorite={isFavorite}
           onToggleFavorite={toggleFavorite}
         />
+        </div>
       )}
 
       {/* Hierarchy explorer — kept mounted to preserve navigation state */}
-      <div className={isSearchActive ? 'hidden' : ''}>
+      <div id="siruta-hierarchy" className={isSearchActive ? 'hidden' : ''}>
         <SirutaHierarchyExplorer
           isFavorite={isFavorite}
           onToggleFavorite={toggleFavorite}

@@ -6,13 +6,24 @@ Currently available datasets:
 
 - **CAEN Rev. 3** — Romanian economic activity codes (NACE Rev. 2.1)
 - **SIRUTA** — Administrative-territorial unit codes (localities, communes, cities, municipalities)
+- **BNR Exchange Rates** — official daily currency exchange rates against RON
+
+Planned datasets already signaled in the UI roadmap:
+
+- Companies
+- Fiscal status / VAT
+- Counties and UAT
+- COR
+- Postal codes
+- Public holidays
 
 ## Features
 
 - **Full-text search** — query by code or name with debounced live results and autocomplete suggestions
 - **Favorites** — pin any entry to localStorage for quick access across sessions
 - **Hierarchy explorer** — drill-down navigation (CAEN: sections → divisions → groups → classes; SIRUTA: counties → localities)
-- **API documentation** — built-in docs page covering all endpoints with code examples
+- **API documentation** — built-in docs page covering the routes exposed in the frontend, plus Swagger UI for the public API
+- **Exchange rates** — browse all currencies, filter by date, and inspect a single currency on a given day
 - **Responsive UI** — built with Tailwind CSS v4, works on mobile and desktop
 
 ## Tech Stack
@@ -54,31 +65,35 @@ src/
 ├── components/
 │   ├── Navbar.tsx
 │   ├── Footer.tsx
-│   ├── SearchBar.tsx              # CAEN autocomplete search bar
-│   ├── ResultCard.tsx             # CAEN result card
-│   ├── ResultsList.tsx            # CAEN search results list
-│   ├── HierarchyExplorer.tsx      # CAEN drill-down explorer
+│   ├── CAENSearchBar.tsx          # CAEN autocomplete search bar
+│   ├── CAENResultCard.tsx         # CAEN result card
+│   ├── CAENResultsList.tsx        # CAEN search results list
+│   ├── CAENHierarchyExplorer.tsx  # CAEN drill-down explorer
 │   ├── SirutaSearchBar.tsx        # SIRUTA autocomplete search bar
 │   ├── SirutaResultCard.tsx       # SIRUTA locality card
 │   ├── SirutaResultsList.tsx      # SIRUTA search results list
-│   └── SirutaHierarchyExplorer.tsx  # SIRUTA county → localities explorer
+│   ├── SirutaHierarchyExplorer.tsx  # SIRUTA county → localities explorer
+│   └── Footer.tsx
 ├── hooks/
 │   ├── useCAENSearch.ts           # Debounced CAEN search with abort-controller
-│   ├── useFavorites.ts            # CAEN localStorage favorites
+│   ├── useCAENFavorites.ts        # CAEN localStorage favorites
 │   ├── useSirutaSearch.ts         # Debounced SIRUTA search
 │   └── useSirutaFavorites.ts      # SIRUTA localStorage favorites
 ├── pages/
 │   ├── HomePage.tsx
 │   ├── CAENPage.tsx
 │   ├── SirutaPage.tsx
+│   ├── SchimbPage.tsx
 │   ├── DocsPage.tsx
 │   └── AboutPage.tsx
 ├── services/
 │   ├── caenApi.ts                 # Typed fetch wrappers — CAEN endpoints
-│   └── sirutaApi.ts               # Typed fetch wrappers — SIRUTA endpoints
+│   ├── sirutaApi.ts               # Typed fetch wrappers — SIRUTA endpoints
+│   └── schimbApi.ts               # Typed fetch wrappers — BNR exchange-rate endpoints
 └── types/
     ├── caen.ts                    # CAENEntry, SearchResponse, Section, Division, Group
-    └── siruta.ts                  # LocalitateEntry, LocalitateSearchResponse, Judet
+│   ├── siruta.ts                  # LocalitateEntry, LocalitateSearchResponse, Judet
+│   └── schimb.ts                  # ValutaInfo, CursZi
 ```
 
 ## API
@@ -105,9 +120,17 @@ All data is fetched from `https://caen-api.ro/api`. Full interactive documentati
 | `GET /siruta/judete` | List all counties |
 | `GET /siruta/judet/{cod_judet}` | List all localities in a county |
 
+### BNR Exchange Rates
+
+| Endpoint | Description |
+|---|---|
+| `GET /schimb/valute` | List all currencies with the latest published rate |
+| `GET /schimb/valute/{data}` | List all currencies available for a specific ISO date |
+| `GET /schimb/curs/{valuta}/{data}` | Fetch one currency for a specific ISO date |
+
 ## About
 
-Developed by [Mapnology SRL](https://mapnology.eu). Data sourced from INS (Institutul Național de Statistică) and ONRC official classifications.
+Developed by [Mapnology SRL](https://mapnology.eu). Current live data is sourced from Romanian official institutions including INS, ONRC, and BNR. For legal, fiscal, or administrative use, always verify against the original source.
 
 ## License
 

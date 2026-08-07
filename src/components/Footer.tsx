@@ -15,6 +15,16 @@ export function Footer() {
             className="underline underline-offset-2 hover:text-gray-600"
           >
             GitHub
+          </a>{' '}
+          sau
+          {' '}
+          <a
+            href="https://github.com/sponsors/mdomnita"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="underline underline-offset-2 hover:text-gray-600"
+          >
+            susține proiectul
           </a>
         </p>
       </div>
@@ -61,8 +71,8 @@ export function Footer() {
         <div>
           <h3 className="mb-2 font-semibold text-gray-700">Sursă</h3>
           <p className="leading-relaxed">
-            Datele provin din surse oficiale românești (INS, ONRC, data.gov.ro) și au caracter pur informativ. Pentru uz
-            oficial, consultați sursele originale.
+            Datele provin din surse oficiale românești, inclusiv INS, ONRC, BNR și data.gov.ro, și au caracter informativ.
+            Pentru uz oficial, consultați sursele originale.
           </p>
         </div>
       </div>

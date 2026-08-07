@@ -28,3 +28,41 @@ export interface Group {
   cod: string
   denumire: string
 }
+
+export interface CorespondentaV3Item {
+  cod_v3: string
+  denumire_v3: string
+  tip_corespondenta: string
+}
+
+export interface CAENv2Detail {
+  cod: string
+  denumire: string
+  corespondente: CorespondentaV3Item[]
+}
+
+export interface CorespondentaV2Item {
+  cod_v2: string | null
+  denumire_v2: string | null
+  tip_corespondenta: string
+}
+
+export interface CAENv3Predecesori {
+  cod: string
+  denumire: string
+  predecesori: CorespondentaV2Item[]
+}
+
+export interface CorespondentaFullItem {
+  id: number
+  cod_v2: string | null
+  denumire_v2: string | null
+  cod_v3: string
+  denumire_v3: string
+  tip_corespondenta: string
+}
+
+export interface CorespondentaSearchResponse {
+  total: number
+  results: CorespondentaFullItem[]
+}

@@ -1,4 +1,13 @@
-import type { CAENEntry, SearchResponse, Section, Division, Group } from '../types/caen'
+import type {
+  CAENEntry,
+  SearchResponse,
+  Section,
+  Division,
+  Group,
+  CAENv2Detail,
+  CAENv3Predecesori,
+  CorespondentaSearchResponse,
+} from '../types/caen'
 
 const BASE_URL = import.meta.env.VITE_API_BASE_URL as string
 
@@ -39,6 +48,36 @@ export async function getGrupe(divisionCod: string): Promise<Group[]> {
 
 export async function getClase(groupCod: string): Promise<CAENEntry[]> {
   const res = await fetch(`${BASE_URL}/grupe/${groupCod}/clase`)
+  if (!res.ok) throw new Error(`HTTP ${res.status}`)
+  return res.json()
+}
+
+export async function getCAENv2ByCode(cod: string): Promise<CAENv2Detail> {
+  const res = await fetch(`${BASE_URL}/caen/v2/${cod}`)
+  if (!res.ok) throw new Error(`HTTP ${res.status}`)
+  return res.json()
+}
+
+export async function getCAENv3Predecesori(cod: string): Promise<CAENv3Predecesori> {
+  const res = await fetch(`${BASE_URL}/caen/v3/${cod}/v2`)
+  if (!res.ok) throw new Error(`HTTP ${res.status}`)
+  return res.json()
+}
+
+export async function searchCorespondenta(params: {
+  v2?: string
+  v3?: string
+  tip?: string
+  limit?: number
+  offset?: number
+}): Promise<CorespondentaSearchResponse> {
+  const query = new URLSearchParams()
+  if (params.v2) query.set('v2', params.v2)
+  if (params.v3) query.set('v3', params.v3)
+  if (params.tip) query.set('tip', params.tip)
+  if (params.limit !== undefined) query.set('limit', String(params.limit))
+  if (params.offset !== undefined) query.set('offset', String(params.offset))
+  const res = await fetch(`${BASE_URL}/caen/corespondenta?${query}`)
   if (!res.ok) throw new Error(`HTTP ${res.status}`)
   return res.json()
 }

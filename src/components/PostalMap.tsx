@@ -1,7 +1,6 @@
 import { useEffect, useRef } from 'react'
-import L from 'leaflet'
-import 'leaflet/dist/leaflet.css'
-import '../lib/leafletIconFix'
+import * as maplibregl from 'maplibre-gl'
+import 'maplibre-gl/dist/maplibre-gl.css'
 import type { PostalPin } from '../types/postalMap'
 
 interface PostalMapProps {
@@ -20,17 +19,50 @@ function Spinner() {
 
 export function PostalMap({ pins, loading }: PostalMapProps) {
   const containerRef = useRef<HTMLDivElement>(null)
-  const mapRef = useRef<L.Map | null>(null)
-  const markersRef = useRef<L.Marker[]>([])
+  const mapRef = useRef<maplibregl.Map | null>(null)
+  const markersRef = useRef<maplibregl.Marker[]>([])
 
   useEffect(() => {
     if (!containerRef.current || mapRef.current) return
-    const map = L.map(containerRef.current).setView([45.9432, 24.9668], 6)
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
-      maxZoom: 19,
-    }).addTo(map)
+
+    const map = new maplibregl.Map({
+      container: containerRef.current,
+      style: {
+        version: 8,
+        sources: {
+          carto: {
+            type: 'raster',
+            tiles: [
+              'https://a.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}.png',
+              'https://b.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}.png',
+              'https://c.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}.png',
+              'https://d.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}.png',
+            ],
+            tileSize: 256,
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
+          },
+        },
+        layers: [
+          {
+            id: 'carto-layer',
+            type: 'raster',
+            source: 'carto',
+            minzoom: 0,
+            maxzoom: 19,
+          },
+        ],
+      },
+      center: [24.9668, 45.9432], // [lng, lat]
+      zoom: 6,
+      attributionControl: false,
+    })
+
+    map.addControl(new maplibregl.AttributionControl({ compact: true }))
+    map.addControl(new maplibregl.NavigationControl({ showCompass: false }), 'top-left')
+    map.addControl(new maplibregl.FullscreenControl(), 'top-left')
+
     mapRef.current = map
+
     return () => {
       map.remove()
       mapRef.current = null
@@ -43,30 +75,40 @@ export function PostalMap({ pins, loading }: PostalMapProps) {
 
     markersRef.current.forEach(m => m.remove())
     markersRef.current = pins.map(pin => {
-      const marker = L.marker([pin.lat, pin.lon]).addTo(map)
-      marker.bindPopup(`<strong>${pin.codPostal}</strong><br/>${pin.ruleLabel}`)
+      // Create a custom DOM element for the marker to mimic the previous Leaflet look
+      const el = document.createElement('div')
+      el.className = 'w-[18px] h-[18px] bg-rose-600 rounded-full border-[2px] border-white shadow-sm'
+      el.style.cursor = 'pointer'
+      
+      const popup = new maplibregl.Popup({ offset: 12, closeButton: false })
+        .setHTML(`<strong style="color: #111827;">${pin.codPostal}</strong><br/><span style="color: #4b5563;">${pin.ruleLabel}</span>`)
+
+      const marker = new maplibregl.Marker({ element: el })
+        .setLngLat([pin.lon, pin.lat]) // MapLibre takes [lng, lat]
+        .setPopup(popup)
+        .addTo(map)
+
       return marker
     })
 
     if (pins.length === 1) {
-      map.setView([pins[0].lat, pins[0].lon], 15)
+      map.flyTo({ center: [pins[0].lon, pins[0].lat], zoom: 15, duration: 1000 })
     } else if (pins.length > 1) {
-      map.fitBounds(
-        L.latLngBounds(pins.map(p => [p.lat, p.lon] as [number, number])),
-        { padding: [40, 40], maxZoom: 16 },
-      )
+      const bounds = new maplibregl.LngLatBounds()
+      pins.forEach(p => bounds.extend([p.lon, p.lat]))
+      map.fitBounds(bounds, { padding: 50, maxZoom: 16, duration: 1000 })
     }
   }, [pins])
 
   return (
-    <div id="coduri-postale-map-wrapper" className="relative">
+    <div className="relative">
       <div
         id="coduri-postale-map"
         ref={containerRef}
-        className="h-80 w-full rounded-xl border border-gray-100 shadow-sm"
+        className="h-80 w-full rounded-xl border border-gray-100 shadow-sm overflow-hidden"
       />
       {loading && (
-        <div className="absolute inset-0 flex items-center justify-center rounded-xl bg-white/60">
+        <div className="absolute inset-0 flex items-center justify-center rounded-xl bg-white/60 z-10">
           <span className="inline-flex items-center gap-2 rounded-full bg-white px-3 py-1.5 text-xs font-medium text-gray-600 shadow">
             <Spinner />
             Se localizează adresele…

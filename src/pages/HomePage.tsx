@@ -140,7 +140,7 @@ const API_SERVICES: ApiService[] = [
   {
     id: 'conversie-caen',
     title: 'Conversie CAEN',
-    description: 'Conversie coduri CAEN între Rev. 2 și Rev. 3 și verificarea actualizării firmelor.',
+    description: 'Conversie coduri CAEN între Rev. 2 și Rev. 3.',
     status: 'live',
     href: '/conversie-caen',
     iconBg: 'bg-violet-50',

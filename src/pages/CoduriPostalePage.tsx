@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { cautaCoduriPostale, getCodPostal, rezolvaAdresa } from '../services/postalApi'
 import { numarRangeLabel } from '../lib/postalFormat'
 import { usePostalMapPins } from '../hooks/usePostalMapPins'
+import { useAdresaMapPins } from '../hooks/useAdresaMapPins'
 import { PostalMap } from '../components/PostalMap'
 import type { AdresaCandidate, CautareCoduriPostaleParams, CodPostalEntry } from '../types/postal'
 
@@ -100,6 +101,7 @@ function AdresaSearchSection() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [candidates, setCandidates] = useState<AdresaCandidate[] | null>(null)
+  const { pins, notFound, geocoding, truncatedCount } = useAdresaMapPins(candidates)
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
@@ -160,10 +162,31 @@ function AdresaSearchSection() {
       )}
 
       {candidates && candidates.length > 0 && (
-        <div id="coduri-postale-adresa-results" className="grid gap-4 sm:grid-cols-2">
-          {candidates.map((c, idx) => (
-            <CandidateCard key={idx} candidate={c} />
-          ))}
+        <div id="coduri-postale-adresa-results">
+          <div className="grid gap-4 sm:grid-cols-2">
+            {candidates.map((c, idx) => (
+              <CandidateCard key={idx} candidate={c} />
+            ))}
+          </div>
+
+          <div id="coduri-postale-adresa-map" className="mt-6">
+            {truncatedCount > 0 && (
+              <p className="mb-2 text-xs text-gray-400">
+                Se afișează pe hartă primele {candidates.length - truncatedCount} din {candidates.length} rezultate.
+              </p>
+            )}
+            <PostalMap pins={pins} loading={geocoding} />
+            {!geocoding && notFound.length > 0 && (
+              <div className="mt-3 space-y-1 text-xs text-gray-500">
+                {notFound.map(nf => (
+                  <p key={nf.id}>
+                    Adresă negăsită: {nf.codPostal}
+                    {nf.strada ? ` — ${nf.strada}` : ''}
+                  </p>
+                ))}
+              </div>
+            )}
+          </div>
         </div>
       )}
     </div>

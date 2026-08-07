@@ -1,4 +1,4 @@
-import type { CodPostalEntry } from '../types/postal'
+import type { AdresaCandidate, CodPostalEntry } from '../types/postal'
 
 const ARCGIS_FIND_CANDIDATES_URL =
   'https://geocode.arcgis.com/arcgis/rest/services/World/GeocodeServer/findAddressCandidates'
@@ -24,6 +24,14 @@ export function buildAddressQuery(entry: CodPostalEntry): AddressQuery {
     : null
   return {
     singleLine: [streetPart, entry.localitate_raw, entry.judet_raw, 'Romania'].filter(Boolean).join(', '),
+    hasStreet: streetPart != null,
+  }
+}
+
+export function buildAddressQueryFromCandidate(candidate: AdresaCandidate): AddressQuery {
+  const streetPart = candidate.strada ?? null
+  return {
+    singleLine: [streetPart, candidate.localitate, candidate.judet, 'Romania'].filter(Boolean).join(', '),
     hasStreet: streetPart != null,
   }
 }

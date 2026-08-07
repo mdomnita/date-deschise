@@ -13,12 +13,14 @@ import { FirmePage } from './pages/FirmePage'
 import { FirmaDetailPage } from './pages/FirmaDetailPage'
 import { DateFinanciarePage } from './pages/DateFinanciarePage'
 import { ConversieCAENPage } from './pages/ConversieCAENPage'
+import { CoduriPostalePage } from './pages/CoduriPostalePage'
 
 const PAGE_TITLES: Record<string, string> = {
   '/': 'Date Deschise',
   '/caen': 'Coduri CAEN Rev. 3',
   '/siruta': 'Coduri SIRUTA',
   '/schimb': 'Curs Valutar BNR',
+  '/coduri-postale': 'Coduri Poștale',
   '/zile-libere': 'Zile Libere & Idei de Concediu',
   '/firme': 'Căutare Firme',
   '/date-financiare': 'Date Financiare Firme',
@@ -48,6 +50,7 @@ export default function App() {
             <Route path="/caen" element={<CAENPage />} />
             <Route path="/siruta" element={<SirutaPage />} />
             <Route path="/schimb" element={<SchimbPage />} />
+            <Route path="/coduri-postale" element={<CoduriPostalePage />} />
             <Route path="/zile-libere" element={<ZileLiberePage />} />
             <Route path="/firme" element={<FirmePage />} />
             <Route path="/firme/:cui" element={<FirmaDetailPage />} />

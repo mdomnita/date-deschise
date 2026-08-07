@@ -119,7 +119,7 @@ function ConvertorCard({
   const [amount, setAmount] = useState('100')
   const [fromCurrency, setFromCurrency] = useState('EUR')
   const [toCurrency, setToCurrency] = useState('RON')
-  const [tvaPreset, setTvaPreset] = useState(19)
+  const [tvaPreset, setTvaPreset] = useState(21)
   const [customTva, setCustomTva] = useState('')
   const [useCustomTva, setUseCustomTva] = useState(false)
   const [includesTva, setIncludesTva] = useState(false)

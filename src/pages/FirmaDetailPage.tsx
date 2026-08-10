@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useParams, Link } from 'react-router-dom'
 import { getCompanie } from '../services/firmeApi'
+import { CompanyMap } from '../components/CompanyMap'
 import type { CompanyOut } from '../types/firme'
 
 function DetailRow({ label, value }: { label: string; value: string | null | undefined }) {
@@ -180,6 +181,21 @@ export function FirmaDetailPage() {
               />
             </dl>
           </section>
+
+          {/* Location map */}
+          {company.latitude != null && company.longitude != null && (
+            <section id="firma-detail-locatie" className="rounded-2xl border border-gray-100 bg-white p-6 shadow-sm">
+              <h2 className="mb-4 text-sm font-semibold uppercase tracking-wider text-gray-400">
+                Locație
+              </h2>
+              <CompanyMap
+                name={company.name}
+                address={buildAddress(company)}
+                latitude={company.latitude}
+                longitude={company.longitude}
+              />
+            </section>
+          )}
         </div>
       )}
     </main>

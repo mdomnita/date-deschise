@@ -1,6 +1,7 @@
 import { useState, useRef } from 'react'
 import { Link } from 'react-router-dom'
 import { searchCompanii, getCompanie } from '../services/firmeApi'
+import { CompanyMap } from '../components/CompanyMap'
 import type { CompanyOut } from '../types/firme'
 
 type SearchMode = 'name' | 'cui'
@@ -115,6 +116,20 @@ function CompanyDetail({ company }: { company: CompanyOut }) {
           />
         </dl>
       </section>
+
+      {company.latitude != null && company.longitude != null && (
+        <section className="rounded-2xl border border-gray-100 bg-white p-6 shadow-sm">
+          <h3 className="mb-4 text-xs font-semibold uppercase tracking-wider text-gray-400">
+            Locație
+          </h3>
+          <CompanyMap
+            name={company.name}
+            address={buildAddress(company)}
+            latitude={company.latitude}
+            longitude={company.longitude}
+          />
+        </section>
+      )}
     </div>
   )
 }

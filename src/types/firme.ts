@@ -52,4 +52,6 @@ export interface CompanyOut {
   address_extra: string | null
   website: string | null
   parent_company_country: string | null
+  latitude: number | null
+  longitude: number | null
 }

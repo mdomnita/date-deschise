@@ -172,6 +172,12 @@ export function FirmaDetailPage() {
               <DetailRow label="Județ" value={company.county} />
               <DetailRow label="Țară" value={company.country} />
               <DetailRow label="Info adiționale" value={company.address_extra} />
+              <DetailRow
+                label="Coordonate (sediu)"
+                value={company.latitude != null && company.longitude != null
+                  ? `${company.latitude}, ${company.longitude}`
+                  : null}
+              />
             </dl>
           </section>
         </div>

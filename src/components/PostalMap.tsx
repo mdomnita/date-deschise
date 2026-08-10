@@ -109,7 +109,7 @@ export function PostalMap({ pins, loading }: PostalMapProps) {
       />
       {loading && (
         <div className="absolute inset-0 flex items-center justify-center rounded-xl bg-white/60 z-10">
-          <span className="inline-flex items-center gap-2 rounded-full bg-white px-3 py-1.5 text-xs font-medium text-gray-600 shadow">
+aom          <span className="inline-flex items-center gap-2 rounded-full bg-white px-3 py-1.5 text-xs font-medium text-gray-600 shadow">
             <Spinner />
             Se localizează adresele…
           </span>

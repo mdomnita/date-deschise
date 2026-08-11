@@ -2,7 +2,7 @@ import { useState, useRef } from 'react'
 import { Link } from 'react-router-dom'
 import { searchCompanii, getCompanie } from '../services/firmeApi'
 import { CompanyMap } from '../components/CompanyMap'
-import type { CompanyOut } from '../types/firme'
+import type { CompanyOut, CompanySearchItem } from '../types/firme'
 
 type SearchMode = 'name' | 'cui'
 
@@ -138,6 +138,7 @@ export function FirmePage() {
   const [mode, setMode] = useState<SearchMode>('name')
   const [query, setQuery] = useState('')
   const [company, setCompany] = useState<CompanyOut | null>(null)
+  const [results, setResults] = useState<CompanySearchItem[]>([])
   const [notFound, setNotFound] = useState(false)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -147,6 +148,7 @@ export function FirmePage() {
     setMode(m)
     setQuery('')
     setCompany(null)
+    setResults([])
     setNotFound(false)
     setError(null)
   }
@@ -162,6 +164,7 @@ export function FirmePage() {
     setLoading(true)
     setError(null)
     setCompany(null)
+    setResults([])
     setNotFound(false)
 
     try {
@@ -169,12 +172,11 @@ export function FirmePage() {
         const data = await getCompanie(q)
         setCompany(data)
       } else {
-        const { results } = await searchCompanii(q, 1)
+        const { results } = await searchCompanii(q, 10)
         if (results.length === 0) {
           setNotFound(true)
         } else {
-          const data = await getCompanie(results[0].cui)
-          setCompany(data)
+          setResults(results)
         }
       }
     } catch (err) {
@@ -184,6 +186,26 @@ export function FirmePage() {
         } else {
           setError('A apărut o eroare la căutare. Încearcă din nou.')
         }
+      }
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  async function handleSelectResult(cui: number) {
+    abortRef.current?.abort()
+    abortRef.current = new AbortController()
+
+    setLoading(true)
+    setError(null)
+
+    try {
+      const data = await getCompanie(cui)
+      setCompany(data)
+      setResults([])
+    } catch (err) {
+      if (err instanceof Error && err.name !== 'AbortError') {
+        setError('Firma cu acest CUI nu a fost găsită sau a apărut o eroare.')
       }
     } finally {
       setLoading(false)
@@ -295,9 +317,33 @@ export function FirmePage() {
         </div>
       )}
 
+      {results.length > 0 && !company && (
+        <div id="firme-results-list" className="mb-6 space-y-2">
+          {results.map(item => (
+            <button
+              key={item.cui}
+              type="button"
+              onClick={() => handleSelectResult(item.cui)}
+              className="flex w-full flex-col gap-1 rounded-2xl border border-gray-100 bg-white p-4 text-left shadow-sm transition hover:border-indigo-200 hover:shadow-md sm:flex-row sm:items-center sm:justify-between"
+            >
+              <div>
+                <p className="font-medium text-gray-900">{item.name}</p>
+                <p className="text-xs text-gray-500">
+                  {[item.locality, item.county].filter(Boolean).join(', ')}
+                  {item.registration_number ? ` · ${item.registration_number}` : ''}
+                </p>
+              </div>
+              <span className="rounded-lg bg-indigo-50 px-3 py-1 font-mono text-xs font-semibold text-indigo-700">
+                CUI {item.cui}
+              </span>
+            </button>
+          ))}
+        </div>
+      )}
+
       {company && <div id="firme-result"><CompanyDetail company={company} /></div>}
 
-      {!company && !error && !notFound && !loading && (
+      {!company && results.length === 0 && !error && !notFound && !loading && (
         <div className="flex flex-col items-center gap-3 py-16 text-center text-gray-400">
           <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="text-gray-300">
             <rect width="16" height="20" x="4" y="2" rx="2" />

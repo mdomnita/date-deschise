@@ -255,6 +255,8 @@ export function FirmePage() {
             <input
               id="firme-search-input"
               key={mode}
+              name={isCuiMode ? 'firme-cui' : 'firme-name'}
+              autoComplete={isCuiMode ? 'off' : 'on'}
               type={isCuiMode ? 'number' : 'text'}
               value={query}
               onChange={e => setQuery(e.target.value)}

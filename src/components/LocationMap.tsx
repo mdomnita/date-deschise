@@ -13,6 +13,7 @@ interface LocationMapProps {
   pins: LocationPin[]
   loading?: boolean
   mapId: string
+  autoOpenPopup?: boolean
 }
 
 function Spinner() {
@@ -24,7 +25,7 @@ function Spinner() {
   )
 }
 
-export function LocationMap({ pins, loading, mapId }: LocationMapProps) {
+export function LocationMap({ pins, loading, mapId, autoOpenPopup }: LocationMapProps) {
   const containerRef = useRef<HTMLDivElement>(null)
   const mapRef = useRef<maplibregl.Map | null>(null)
   const markersRef = useRef<maplibregl.Marker[]>([])
@@ -100,12 +101,13 @@ export function LocationMap({ pins, loading, mapId }: LocationMapProps) {
 
     if (pins.length === 1) {
       map.flyTo({ center: [pins[0].lon, pins[0].lat], zoom: 15, duration: 1000 })
+      if (autoOpenPopup) markersRef.current[0].togglePopup()
     } else if (pins.length > 1) {
       const bounds = new maplibregl.LngLatBounds()
       pins.forEach(p => bounds.extend([p.lon, p.lat]))
       map.fitBounds(bounds, { padding: 50, maxZoom: 16, duration: 1000 })
     }
-  }, [pins])
+  }, [pins, autoOpenPopup])
 
   return (
     <div className="relative">

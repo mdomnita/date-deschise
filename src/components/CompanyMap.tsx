@@ -14,5 +14,5 @@ export function CompanyMap({ name, address, latitude, longitude }: CompanyMapPro
 
   const pins = [{ id: 'company', lat: latitude, lon: longitude, popupHtml }]
 
-  return <LocationMap pins={pins} mapId="firma-detail-map" />
+  return <LocationMap pins={pins} mapId="firma-detail-map" autoOpenPopup />
 }

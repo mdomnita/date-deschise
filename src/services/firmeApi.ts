@@ -15,12 +15,15 @@ export async function getCompanie(cui: number | string): Promise<CompanyOut> {
 }
 
 export async function getBilant(cui: number | string, ani?: number[]): Promise<BilantResponse> {
-  const params = new URLSearchParams()
-  if (ani && ani.length > 0) {
-    ani.forEach(an => params.append('ani', String(an)))
+  if (!ani || ani.length === 0) {
+    const res = await fetch(`${BASE_URL}/companii/${cui}/bilant/ultimul-an`)
+    if (!res.ok) throw new Error(`HTTP ${res.status}`)
+    return res.json()
   }
-  const query = params.toString() ? `?${params.toString()}` : ''
-  const res = await fetch(`${BASE_URL}/companii/${cui}/bilant${query}`)
+
+  const params = new URLSearchParams()
+  ani.forEach(an => params.append('ani', String(an)))
+  const res = await fetch(`${BASE_URL}/companii/${cui}/bilant?${params.toString()}`)
   if (!res.ok) throw new Error(`HTTP ${res.status}`)
   return res.json()
 }

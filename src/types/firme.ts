@@ -31,6 +31,44 @@ export interface BilantResponse {
   warning: string | null
 }
 
+export interface CompanyFinancialYear {
+  an: number
+  sursa: string
+  caen: string | null
+  values: Record<string, number | null>
+}
+
+export interface CompanyFinancialsResponse {
+  cui: number
+  name: string
+  fields: string[]
+  years: CompanyFinancialYear[]
+}
+
+export interface CompanyFinancialsData extends CompanyFinancialsResponse {
+  warning: string | null
+}
+
+export const FINANCIAL_FIELD_LABELS: Record<string, string> = {
+  cifra_afaceri: 'Cifra de afaceri netă',
+  venituri_totale: 'Venituri totale',
+  cheltuieli_totale: 'Cheltuieli totale',
+  profit_brut: 'Profit brut',
+  profit_net: 'Profit net',
+  capitaluri_total: 'Capitaluri - total',
+  capital_social: 'Capital social',
+  active_imobilizate_total: 'Active imobilizate - total',
+  active_circulante_total: 'Active circulante - total',
+  stocuri: 'Stocuri',
+  creante: 'Creanțe',
+  casa_conturi: 'Casă și conturi la bănci',
+  datorii: 'Datorii',
+  provizioane: 'Provizioane',
+  patrimoniul_public: 'Patrimoniul public',
+  patrimoniul_regiei: 'Patrimoniul regiei',
+  numar_salariati: 'Număr mediu de salariați',
+}
+
 export interface CompanyOut {
   name: string
   cui: number
